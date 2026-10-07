@@ -40,8 +40,8 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   <section class="card">
     <div id="auth">
       <div class="tabs">
-        <button id="tabIn" class="tab active" type="button">Sign In</button>
-        <button id="tabUp" class="tab" type="button">Create Account</button>
+        <button id="tabIn" class="tab active" type="button" tabindex="-1">Sign In</button>
+        <button id="tabUp" class="tab" type="button" tabindex="-1">Create Account</button>
       </div>
       <div id="message" class="message" role="alert"></div>
 
@@ -58,11 +58,11 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
           <label id="inPassLabel" for="inPass">Password</label>
           <div class="password">
             <input id="inPass" type="password" autocomplete="current-password">
-            <button class="show" type="button" data-target="inPass">Show</button>
+            <button class="show" type="button" data-target="inPass" tabindex="-1">Show</button>
           </div>
         </div>
-        <button id="login" class="primary" type="button">Sign In</button>
-        <button id="forgot" class="link" type="button">Forgot password?</button>
+        <button id="login" class="primary" type="button" tabindex="-1">Sign In</button>
+        <button id="forgot" class="link" type="button" tabindex="-1">Forgot password?</button>
       </div>
 
       <div id="signup" class="hidden">
@@ -78,17 +78,17 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
           <label id="upPassLabel" for="upPass">Password</label>
           <div class="password">
             <input id="upPass" type="password" autocomplete="new-password">
-            <button class="show" type="button" data-target="upPass">Show</button>
+            <button class="show" type="button" data-target="upPass" tabindex="-1">Show</button>
           </div>
         </div>
         <div class="field">
           <label id="upPass2Label" for="upPass2">Confirm password</label>
           <div class="password">
             <input id="upPass2" type="password" autocomplete="new-password">
-            <button class="show" type="button" data-target="upPass2">Show</button>
+            <button class="show" type="button" data-target="upPass2" tabindex="-1">Show</button>
           </div>
         </div>
-        <button id="signupButton" class="primary" type="button">Create Account</button>
+        <button id="signupButton" class="primary" type="button" tabindex="-1">Create Account</button>
       </div>
     </div>
 
@@ -100,8 +100,8 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
       <div id="accountEmail" class="account-email"></div>
       <div id="accountMessage" class="message" role="status"></div>
       <div class="actions">
-        <button id="continue" class="primary" type="button">Continue</button>
-        <button id="logout" class="outline" type="button">Sign Out</button>
+        <button id="continue" class="primary" type="button" tabindex="-1">Continue</button>
+        <button id="logout" class="outline" type="button" tabindex="-1">Sign Out</button>
       </div>
     </div>
   </section>
@@ -355,6 +355,31 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
       button.textContent=text.show;
     }
   }
+
+  document.addEventListener("focusin",function(e){
+    var target=e.target;
+    if(!target || target.tagName!=="BUTTON"){ return; }
+
+    /*
+     * KitKat WebView may place focus on the first button when the WebView
+     * receives native focus. Do not allow that to steal the HTML editor.
+     * The button's click handler still runs normally after focus is moved.
+     */
+    setTimeout(function(){
+      var signin=document.getElementById("signin");
+      var active=document.activeElement;
+      if(!signin || signin.className.indexOf("hidden")!==-1){ return; }
+      if(active===target || (active && active.tagName==="BUTTON")){
+        var email=document.getElementById("inEmail");
+        var password=document.getElementById("inPass");
+        if(password && document.activeElement===target){
+          password.focus();
+        }else if(email){
+          email.focus();
+        }
+      }
+    },0);
+  });
 
   $("tabIn").onclick=function(){ switchMode(true); };
   $("tabUp").onclick=function(){ switchMode(false); };
