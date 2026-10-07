@@ -24,7 +24,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 .primary,.outline{width:100%;min-height:44px;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer}.primary{border:0;background:#1a73e8;color:#fff;margin-top:4px}.primary:hover{background:#1765cc}.primary:disabled{opacity:.65;cursor:default}
 .outline{border:1px solid #d9dce1;background:#fff;color:#202124}
 .link{border:0;background:transparent;color:#1a73e8;cursor:pointer;padding:10px 0 0;font-size:13px}
-.message{display:none;border-radius:7px;padding:10px 12px;margin-bottom:15px;font-size:13px;line-height:1.4}.message.show{display:block}.error{background:#fdecec;color:#b3261e;border:1px solid #f3c7c7}.success{background:#edf7ef;color:#217346;border:1px solid #c6e5cd}
+.message{display:none;width:100%;clear:both;border-radius:7px;padding:10px 12px;margin:0 0 15px;font-size:13px;line-height:1.4;position:static}.message.show{display:block}.error{background:#fdecec;color:#b3261e;border:1px solid #f3c7c7}.success{background:#edf7ef;color:#217346;border:1px solid #c6e5cd}
 .hidden{display:none!important}.account{text-align:center}.account-email{margin:8px 0 18px;color:#6b7078;font-size:14px;word-break:break-word}.actions{display:grid;gap:10px}
 .footer{text-align:center;color:#8a8f97;font-size:11px;margin-top:16px;line-height:1.5}
 @media(max-width:460px){body{padding:15px}.card{padding:20px}}
@@ -48,6 +48,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
           <h2 id="signinHeading">Welcome back</h2>
           <p id="signinDescription">Sign in to your Simple Account.</p>
         </div>
+        <div id="signinMessage" class="message" role="alert"></div>
         <div class="field">
           <label id="inEmailLabel" for="inEmail">Email</label>
           <input id="inEmail" type="email" autocomplete="email" spellcheck="false">
@@ -59,7 +60,6 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
             <button class="show" type="button" data-target="inPass" tabindex="-1">Show</button>
           </div>
         </div>
-        <div id="signinMessage" class="message" role="alert"></div>
         <button id="login" class="primary" type="button" tabindex="-1">Sign In</button>
         <button id="forgot" class="link" type="button" tabindex="-1">Forgot password?</button>
       </div>
@@ -69,6 +69,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
           <h2 id="signupHeading">Create your Simple Account</h2>
           <p id="signupDescription">Use the same account across Simple apps and services.</p>
         </div>
+        <div id="signupMessage" class="message" role="alert"></div>
         <div class="field">
           <label id="upEmailLabel" for="upEmail">Email</label>
           <input id="upEmail" type="email" autocomplete="email" spellcheck="false">
@@ -87,7 +88,6 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
             <button class="show" type="button" data-target="upPass2" tabindex="-1">Show</button>
           </div>
         </div>
-        <div id="signupMessage" class="message" role="alert"></div>
         <button id="signupButton" class="primary" type="button" tabindex="-1">Create Account</button>
       </div>
     </div>
