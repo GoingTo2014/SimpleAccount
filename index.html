@@ -35,7 +35,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   <div class="brand">
     <div class="logo" aria-hidden="true">S</div>
     <h1>Simple Account</h1>
-    <p class="tagline">One account for the Simple ecosystem.</p>
+    <p id="tagline" class="tagline">One account for the Simple ecosystem.</p>
   </div>
   <section class="card">
     <div id="auth">
@@ -47,15 +47,15 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
       <div id="signin">
         <div class="heading">
-          <h2>Welcome back</h2>
-          <p>Sign in to your Simple Account.</p>
+          <h2 id="signinHeading">Welcome back</h2>
+          <p id="signinDescription">Sign in to your Simple Account.</p>
         </div>
         <div class="field">
-          <label for="inEmail">Email</label>
+          <label id="inEmailLabel" for="inEmail">Email</label>
           <input id="inEmail" type="email" autocomplete="email" spellcheck="false">
         </div>
         <div class="field">
-          <label for="inPass">Password</label>
+          <label id="inPassLabel" for="inPass">Password</label>
           <div class="password">
             <input id="inPass" type="password" autocomplete="current-password">
             <button class="show" type="button" data-target="inPass">Show</button>
@@ -67,22 +67,22 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
       <div id="signup" class="hidden">
         <div class="heading">
-          <h2>Create your Simple Account</h2>
-          <p>Use the same account across Simple apps and services.</p>
+          <h2 id="signupHeading">Create your Simple Account</h2>
+          <p id="signupDescription">Use the same account across Simple apps and services.</p>
         </div>
         <div class="field">
-          <label for="upEmail">Email</label>
+          <label id="upEmailLabel" for="upEmail">Email</label>
           <input id="upEmail" type="email" autocomplete="email" spellcheck="false">
         </div>
         <div class="field">
-          <label for="upPass">Password</label>
+          <label id="upPassLabel" for="upPass">Password</label>
           <div class="password">
             <input id="upPass" type="password" autocomplete="new-password">
             <button class="show" type="button" data-target="upPass">Show</button>
           </div>
         </div>
         <div class="field">
-          <label for="upPass2">Confirm password</label>
+          <label id="upPass2Label" for="upPass2">Confirm password</label>
           <div class="password">
             <input id="upPass2" type="password" autocomplete="new-password">
             <button class="show" type="button" data-target="upPass2">Show</button>
@@ -94,8 +94,8 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
     <div id="account" class="account hidden">
       <div class="heading">
-        <h2>You're signed in</h2>
-        <p>Your Simple Account authentication is complete.</p>
+        <h2 id="signedInHeading">You're signed in</h2>
+        <p id="signedInDescription">Your Simple Account authentication is complete.</p>
       </div>
       <div id="accountEmail" class="account-email"></div>
       <div id="accountMessage" class="message" role="status"></div>
@@ -105,7 +105,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
       </div>
     </div>
   </section>
-  <div class="footer">Simple Account · Simple ecosystem</div>
+  <div id="footer" class="footer">Simple Account · Simple ecosystem</div>
 </main>
 
 <script>
@@ -116,6 +116,55 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   var AUTH_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:";
   var API_KEY = "?key=" + encodeURIComponent(FIREBASE_API_KEY);
   var state = { idToken:null, refreshToken:null, localId:null, email:null };
+
+  var translations={
+    en:{tagline:"One account for the Simple ecosystem.",signIn:"Sign In",createAccount:"Create Account",welcome:"Welcome back",signInDescription:"Sign in to your Simple Account.",email:"Email",password:"Password",show:"Show",hide:"Hide",forgot:"Forgot password?",signingIn:"Signing In…",createBusy:"Creating Account…",confirmPassword:"Confirm password",createHeading:"Create your Simple Account",createDescription:"Use the same account across Simple apps and services.",signedIn:"You're signed in",signedInDescription:"Your Simple Account authentication is complete.",continueText:"Continue",signOut:"Sign Out",footer:"Simple Account · Simple ecosystem"},
+    es:{tagline:"Una cuenta para todo el ecosistema Simple.",signIn:"Iniciar sesión",createAccount:"Crear cuenta",welcome:"Bienvenido de nuevo",signInDescription:"Inicia sesión en tu Simple Account.",email:"Correo electrónico",password:"Contraseña",show:"Mostrar",hide:"Ocultar",forgot:"¿Olvidaste tu contraseña?",signingIn:"Iniciando sesión…",createBusy:"Creando cuenta…",confirmPassword:"Confirmar contraseña",createHeading:"Crea tu Simple Account",createDescription:"Usa la misma cuenta en las aplicaciones y servicios de Simple.",signedIn:"Has iniciado sesión",signedInDescription:"La autenticación de tu Simple Account se ha completado.",continueText:"Continuar",signOut:"Cerrar sesión",footer:"Simple Account · ecosistema Simple"},
+    pt:{tagline:"Uma conta para todo o ecossistema Simple.",signIn:"Entrar",createAccount:"Criar conta",welcome:"Bem-vindo de volta",signInDescription:"Entre na sua Simple Account.",email:"E-mail",password:"Senha",show:"Mostrar",hide:"Ocultar",forgot:"Esqueceu a senha?",signingIn:"Entrando…",createBusy:"Criando conta…",confirmPassword:"Confirmar senha",createHeading:"Crie sua Simple Account",createDescription:"Use a mesma conta nos aplicativos e serviços da Simple.",signedIn:"Você entrou",signedInDescription:"A autenticação da sua Simple Account foi concluída.",continueText:"Continuar",signOut:"Sair",footer:"Simple Account · ecossistema Simple"},
+    fr:{tagline:"Un compte pour tout l’écosystème Simple.",signIn:"Se connecter",createAccount:"Créer un compte",welcome:"Bon retour",signInDescription:"Connectez-vous à votre Simple Account.",email:"E-mail",password:"Mot de passe",show:"Afficher",hide:"Masquer",forgot:"Mot de passe oublié ?",signingIn:"Connexion…",createBusy:"Création du compte…",confirmPassword:"Confirmer le mot de passe",createHeading:"Créez votre Simple Account",createDescription:"Utilisez le même compte avec les applications et services Simple.",signedIn:"Vous êtes connecté",signedInDescription:"L’authentification de votre Simple Account est terminée.",continueText:"Continuer",signOut:"Se déconnecter",footer:"Simple Account · écosystème Simple"},
+    ja:{tagline:"Simple エコシステムで使える 1 つのアカウント。",signIn:"サインイン",createAccount:"アカウントを作成",welcome:"おかえりなさい",signInDescription:"Simple Account にサインインしてください。",email:"メールアドレス",password:"パスワード",show:"表示",hide:"非表示",forgot:"パスワードをお忘れですか？",signingIn:"サインイン中…",createBusy:"アカウントを作成中…",confirmPassword:"パスワードを確認",createHeading:"Simple Account を作成",createDescription:"Simple のアプリやサービスで同じアカウントを使用できます。",signedIn:"サインインしました",signedInDescription:"Simple Account の認証が完了しました。",continueText:"続行",signOut:"サインアウト",footer:"Simple Account · Simple エコシステム"},
+    zh:{tagline:"一个账号，连接整个 Simple 生态。",signIn:"登录",createAccount:"创建账号",welcome:"欢迎回来",signInDescription:"登录你的 Simple Account。",email:"电子邮件",password:"密码",show:"显示",hide:"隐藏",forgot:"忘记密码？",signingIn:"正在登录…",createBusy:"正在创建账号…",confirmPassword:"确认密码",createHeading:"创建你的 Simple Account",createDescription:"在 Simple 的应用和服务中使用同一个账号。",signedIn:"你已登录",signedInDescription:"你的 Simple Account 身份验证已完成。",continueText:"继续",signOut:"退出登录",footer:"Simple Account · Simple 生态"},
+    hi:{tagline:"पूरे Simple इकोसिस्टम के लिए एक खाता।",signIn:"साइन इन करें",createAccount:"खाता बनाएँ",welcome:"वापसी पर स्वागत है",signInDescription:"अपने Simple Account में साइन इन करें।",email:"ईमेल",password:"पासवर्ड",show:"दिखाएँ",hide:"छिपाएँ",forgot:"पासवर्ड भूल गए?",signingIn:"साइन इन हो रहा है…",createBusy:"खाता बनाया जा रहा है…",confirmPassword:"पासवर्ड की पुष्टि करें",createHeading:"अपना Simple Account बनाएँ",createDescription:"Simple के ऐप्स और सेवाओं में एक ही खाते का उपयोग करें।",signedIn:"आप साइन इन हैं",signedInDescription:"आपके Simple Account का प्रमाणीकरण पूरा हो गया है।",continueText:"जारी रखें",signOut:"साइन आउट करें",footer:"Simple Account · Simple इकोसिस्टम"},
+    ru:{tagline:"Один аккаунт для всей экосистемы Simple.",signIn:"Войти",createAccount:"Создать аккаунт",welcome:"С возвращением",signInDescription:"Войдите в свой Simple Account.",email:"Электронная почта",password:"Пароль",show:"Показать",hide:"Скрыть",forgot:"Забыли пароль?",signingIn:"Вход…",createBusy:"Создание аккаунта…",confirmPassword:"Подтвердите пароль",createHeading:"Создайте свой Simple Account",createDescription:"Используйте один аккаунт в приложениях и сервисах Simple.",signedIn:"Вы вошли",signedInDescription:"Аутентификация Simple Account завершена.",continueText:"Продолжить",signOut:"Выйти",footer:"Simple Account · экосистема Simple"},
+    de:{tagline:"Ein Konto für das gesamte Simple-Ökosystem.",signIn:"Anmelden",createAccount:"Konto erstellen",welcome:"Willkommen zurück",signInDescription:"Melde dich bei deinem Simple Account an.",email:"E-Mail",password:"Passwort",show:"Anzeigen",hide:"Ausblenden",forgot:"Passwort vergessen?",signingIn:"Anmeldung…",createBusy:"Konto wird erstellt…",confirmPassword:"Passwort bestätigen",createHeading:"Erstelle deinen Simple Account",createDescription:"Verwende dasselbe Konto für Simple-Apps und -Dienste.",signedIn:"Du bist angemeldet",signedInDescription:"Die Authentifizierung deines Simple Accounts ist abgeschlossen.",continueText:"Weiter",signOut:"Abmelden",footer:"Simple Account · Simple-Ökosystem"},
+    ar:{tagline:"حساب واحد لمنظومة Simple بالكامل.",signIn:"تسجيل الدخول",createAccount:"إنشاء حساب",welcome:"مرحبًا بعودتك",signInDescription:"سجّل الدخول إلى Simple Account.",email:"البريد الإلكتروني",password:"كلمة المرور",show:"إظهار",hide:"إخفاء",forgot:"هل نسيت كلمة المرور؟",signingIn:"جارٍ تسجيل الدخول…",createBusy:"جارٍ إنشاء الحساب…",confirmPassword:"تأكيد كلمة المرور",createHeading:"أنشئ Simple Account الخاص بك",createDescription:"استخدم الحساب نفسه في تطبيقات وخدمات Simple.",signedIn:"تم تسجيل الدخول",signedInDescription:"اكتملت مصادقة Simple Account.",continueText:"متابعة",signOut:"تسجيل الخروج",footer:"Simple Account · منظومة Simple"}
+  };
+
+  function getLanguage(){
+    var match=location.search.match(/[?&]lang=([^&]+)/);
+    var lang=match?decodeURIComponent(match[1]):"";
+    if(!lang && navigator.language){ lang=navigator.language.toLowerCase().split("-")[0]; }
+    return translations[lang]?lang:"en";
+  }
+
+  var language=getLanguage();
+  var text=translations[language];
+
+  function applyTranslations(){
+    var map={
+      tagline:"tagline",welcome:"signinHeading",signInDescription:"signinDescription",
+      email:"inEmailLabel",password:"inPassLabel",confirmPassword:"upPass2Label",
+      createHeading:"signupHeading",createDescription:"signupDescription",
+      signedIn:"signedInHeading",signedInDescription:"signedInDescription",
+      continueText:"continue",signOut:"logout",footer:"footer"
+    };
+    Object.keys(map).forEach(function(key){
+      var el=$(map[key]);
+      if(el){el.textContent=text[key];}
+    });
+    $("tabIn").textContent=text.signIn;
+    $("tabUp").textContent=text.createAccount;
+    $("login").textContent=text.signIn;
+    $("forgot").textContent=text.forgot;
+    $("signupButton").textContent=text.createAccount;
+    var upEmailLabel=$("upEmailLabel");
+    var upPassLabel=$("upPassLabel");
+    if(upEmailLabel){upEmailLabel.textContent=text.email;}
+    if(upPassLabel){upPassLabel.textContent=text.password;}
+    for(var i=0;i<showButtons.length;i++){ showButtons[i].textContent=text.show; }
+    document.documentElement.lang=language;
+    if(language==="ar"){ document.documentElement.dir="rtl"; }
+  }
 
   function $(id){ return document.getElementById(id); }
 
@@ -233,13 +282,13 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
     if(!email){ showMessage("Enter your email address."); return; }
     if(!password){ showMessage("Enter your password."); return; }
 
-    setBusy(button,true,"Signing In…","Sign In");
+    setBusy(button,true,text.signingIn,text.signIn);
     authRequest("signInWithPassword",{
       email:email,
       password:password,
       returnSecureToken:true
     },function(error,data){
-      setBusy(button,false,"Signing In…","Sign In");
+      setBusy(button,false,text.signingIn,text.signIn);
       if(error){ showMessage(error.message); return; }
       signedIn(data);
     });
@@ -256,13 +305,13 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
     if(password.length<6){ showMessage("Your password must be at least 6 characters."); return; }
     if(password!==password2){ showMessage("The passwords do not match."); return; }
 
-    setBusy(button,true,"Creating Account…","Create Account");
+    setBusy(button,true,text.createBusy,text.createAccount);
     authRequest("signUp",{
       email:email,
       password:password,
       returnSecureToken:true
     },function(error,data){
-      setBusy(button,false,"Creating Account…","Create Account");
+      setBusy(button,false,text.createBusy,text.createAccount);
       if(error){ showMessage(error.message); return; }
       signedIn(data);
     });
@@ -300,10 +349,10 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
     if(!input){ return; }
     if(input.type==="password"){
       input.type="text";
-      button.textContent="Hide";
+      button.textContent=text.hide;
     }else{
       input.type="password";
-      button.textContent="Show";
+      button.textContent=text.show;
     }
   }
 
@@ -319,9 +368,13 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
     notifyAndroidAuthenticated();
   };
 
-  $("showInPass").onclick=function(){ togglePassword("inPass",this); };
-  $("showUpPass").onclick=function(){ togglePassword("upPass",this); };
-  $("showUpPass2").onclick=function(){ togglePassword("upPass2",this); };
+  var showButtons=document.getElementsByClassName("show");
+  applyTranslations();
+  for(var si=0;si<showButtons.length;si++){
+    showButtons[si].onclick=function(){
+      togglePassword(this.getAttribute("data-target"),this);
+    };
+  }
 
   $("inEmail").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
   $("inPass").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
