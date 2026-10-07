@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Simple Account</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#f5f6f8;color:#202124}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.shell{width:100%;max-width:430px}
+.brand{text-align:center;margin-bottom:18px}
+.logo{width:58px;height:58px;margin:0 auto 12px;border:1px solid #d9dce1;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+h1{font-size:26px;margin:0}.tagline{margin:7px 0 0;color:#6b7078;font-size:14px}
+.card{background:#fff;border:1px solid #d9dce1;border-radius:12px;padding:24px;box-shadow:0 5px 20px rgba(0,0,0,.06)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#f0f1f3;border-radius:8px;margin-bottom:21px}
+.tab{border:0;border-radius:6px;background:transparent;color:#6b7078;padding:10px;font-size:14px;font-weight:600;cursor:pointer}.tab.active{background:#fff;color:#202124;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.heading{margin-bottom:18px}.heading h2{margin:0 0 6px;font-size:20px}.heading p{margin:0;color:#6b7078;font-size:13px;line-height:1.45}
+.field{margin-bottom:14px}label{display:block;margin-bottom:6px;font-size:13px;font-weight:600}
+input{display:block;width:100%;height:44px;border:1px solid #d9dce1;border-radius:7px;background:#fff;color:#202124;padding:0 12px;font-size:15px;outline:none}
+input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
+.password{position:relative}.password input{padding-right:68px}.show{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#1a73e8;font-size:12px;font-weight:600;padding:7px;cursor:pointer}
+.primary,.outline{width:100%;min-height:44px;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer}.primary{border:0;background:#1a73e8;color:#fff;margin-top:4px}.primary:hover{background:#1765cc}.primary:disabled{opacity:.65;cursor:default}
+.outline{border:1px solid #d9dce1;background:#fff;color:#202124}
+.link{border:0;background:transparent;color:#1a73e8;cursor:pointer;padding:10px 0 0;font-size:13px}
+.message{display:none;border-radius:7px;padding:10px 12px;margin-bottom:15px;font-size:13px;line-height:1.4}.message.show{display:block}.error{background:#fdecec;color:#b3261e;border:1px solid #f3c7c7}.success{background:#edf7ef;color:#217346;border:1px solid #c6e5cd}
+.hidden{display:none!important}.account{text-align:center}.account-email{margin:8px 0 18px;color:#6b7078;font-size:14px;word-break:break-word}.actions{display:grid;gap:10px}
+.footer{text-align:center;color:#8a8f97;font-size:11px;margin-top:16px;line-height:1.5}
+@media(max-width:460px){body{padding:15px}.card{padding:20px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">S</div>
+    <h1>Simple Account</h1>
+    <p class="tagline">One account for the Simple ecosystem.</p>
+  </div>
+  <section class="card">
+    <div id="auth">
+      <div class="tabs">
+        <button id="tabIn" class="tab active" type="button">Sign In</button>
+        <button id="tabUp" class="tab" type="button">Create Account</button>
+      </div>
+      <div id="message" class="message" role="alert"></div>
+
+      <div id="signin">
+        <div class="heading">
+          <h2>Welcome back</h2>
+          <p>Sign in to your Simple Account.</p>
+        </div>
+        <div class="field">
+          <label for="inEmail">Email</label>
+          <input id="inEmail" type="email" autocomplete="email" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="inPass">Password</label>
+          <div class="password">
+            <input id="inPass" type="password" autocomplete="current-password">
+            <button class="show" type="button" data-target="inPass">Show</button>
+          </div>
+        </div>
+        <button id="login" class="primary" type="button">Sign In</button>
+        <button id="forgot" class="link" type="button">Forgot password?</button>
+      </div>
+
+      <div id="signup" class="hidden">
+        <div class="heading">
+          <h2>Create your Simple Account</h2>
+          <p>Use the same account across Simple apps and services.</p>
+        </div>
+        <div class="field">
+          <label for="upEmail">Email</label>
+          <input id="upEmail" type="email" autocomplete="email" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="upPass">Password</label>
+          <div class="password">
+            <input id="upPass" type="password" autocomplete="new-password">
+            <button class="show" type="button" data-target="upPass">Show</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="upPass2">Confirm password</label>
+          <div class="password">
+            <input id="upPass2" type="password" autocomplete="new-password">
+            <button class="show" type="button" data-target="upPass2">Show</button>
+          </div>
+        </div>
+        <button id="signupButton" class="primary" type="button">Create Account</button>
+      </div>
+    </div>
+
+    <div id="account" class="account hidden">
+      <div class="heading">
+        <h2>You're signed in</h2>
+        <p>Your Simple Account authentication is complete.</p>
+      </div>
+      <div id="accountEmail" class="account-email"></div>
+      <div id="accountMessage" class="message" role="status"></div>
+      <div class="actions">
+        <button id="continue" class="primary" type="button">Continue</button>
+        <button id="logout" class="outline" type="button">Sign Out</button>
+      </div>
+    </div>
+  </section>
+  <div class="footer">Simple Account · Simple ecosystem</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var FIREBASE_API_KEY = "AIzaSyCvzguZnR0UzwuYSTiNEtrzAPvU1eYOZQ8";
+  var AUTH_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:";
+  var API_KEY = "?key=" + encodeURIComponent(FIREBASE_API_KEY);
+  var state = {idToken:null,refreshToken:null,localId:null,email:null};
+
+  function $(id){return document.getElementById(id)}
+  function message(text,type){
+    var el=$("message"); el.textContent=text||""; el.className="message show "+(type||"error");
+  }
+  function clearMessage(){$("message").className="message";$("message").textContent=""}
+  function accountMessage(text,type){
+    var el=$("accountMessage"); el.textContent=text||""; el.className="message show "+(type||"success");
+  }
+  function firebaseMessage(data){
+    var code=data&&data.error&&data.error.message?data.error.message:"";
+    var map={
+      EMAIL_EXISTS:"That email is already associated with a Simple Account.",
+      EMAIL_NOT_FOUND:"No Simple Account was found with that email.",
+      INVALID_PASSWORD:"The password is incorrect.",
+      INVALID_LOGIN_CREDENTIALS:"The email or password is incorrect.",
+      INVALID_EMAIL:"Please enter a valid email address.",
+      USER_DISABLED:"This Simple Account has been disabled.",
+      TOO_MANY_ATTEMPTS_TRY_LATER:"Too many attempts. Please try again later.",
+      OPERATION_NOT_ALLOWED:"Email and password sign-in is not enabled.",
+      WEAK_PASSWORD:"The password is too weak. Use at least 6 characters.",
+      PASSWORD_DOES_NOT_MEET_REQUIREMENTS:"The password does not meet the account password requirements."
+    };
+    return map[code]||"Simple Account could not complete that request.";
+  }
+  async function request(endpoint,body){
+    var response;
+    try{
+      response=await fetch(AUTH_BASE+endpoint+API_KEY,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(body)
+      });
+    }catch(e){throw new Error("Unable to connect to Simple Account. Check your internet connection.")}
+    var data={};
+    try{data=await response.json()}catch(e){}
+    if(!response.ok)throw new Error(firebaseMessage(data));
+    return data;
+  }
+  function busy(btn,on,text){
+    btn.disabled=on;
+    if(on){btn.dataset.original=btn.textContent;btn.textContent=text}
+    else btn.textContent=btn.dataset.original||btn.textContent;
+  }
+  function mode(signin){
+    clearMessage();
+    $("tabIn").className="tab"+(signin?" active":"");
+    $("tabUp").className="tab"+(signin?"":" active");
+    $("signin").className=signin?"":"hidden";
+    $("signup").className=signin?"hidden":"";
+  }
+  function notifyAndroid(){
+    if(window.Android&&typeof window.Android.onSimpleAccountAuthenticated==="function"){
+      try{window.Android.onSimpleAccountAuthenticated(state.idToken||"",state.refreshToken||"",state.localId||"",state.email||"")}catch(e){}
+    }
+  }
+  function notifyCancelled(){
+    if(window.Android&&typeof window.Android.onSimpleAccountCancelled==="function"){
+      try{window.Android.onSimpleAccountCancelled()}catch(e){}
+    }
+  }
+  function signedIn(data){
+    state.idToken=data.idToken||null;
+    state.refreshToken=data.refreshToken||null;
+    state.localId=data.localId||null;
+    state.email=data.email||null;
+    $("auth").className="hidden";
+    $("account").className="account";
+    $("accountEmail").textContent=state.email||"Simple Account";
+    notifyAndroid();
+  }
+  async function login(){
+    clearMessage();
+    var email=$("inEmail").value.trim(), pass=$("inPass").value, btn=$("login");
+    if(!email)return message("Enter your email address.");
+    if(!pass)return message("Enter your password.");
+    busy(btn,true,"Signing In…");
+    try{
+      signedIn(await request("signInWithPassword",{email:email,password:pass,returnSecureToken:true}));
+    }catch(e){message(e.message)}finally{busy(btn,false)}
+  }
+  async function signup(){
+    clearMessage();
+    var email=$("upEmail").value.trim(), pass=$("upPass").value, pass2=$("upPass2").value, btn=$("signupButton");
+    if(!email)return message("Enter your email address.");
+    if(pass.length<6)return message("Your password must be at least 6 characters.");
+    if(pass!==pass2)return message("The passwords do not match.");
+    busy(btn,true,"Creating Account…");
+    try{
+      signedIn(await request("signUp",{email:email,password:pass,returnSecureToken:true}));
+    }catch(e){message(e.message)}finally{busy(btn,false)}
+  }
+  async function forgot(){
+    clearMessage();
+    var email=$("inEmail").value.trim(), btn=$("forgot");
+    if(!email)return message("Enter your email first.");
+    busy(btn,true,"Sending…");
+    try{
+      await request("sendOobCode",{requestType:"PASSWORD_RESET",email:email});
+      message("A password reset email has been sent to "+email+".","success");
+    }catch(e){message(e.message)}finally{busy(btn,false)}
+  }
+  function logout(){
+    state={idToken:null,refreshToken:null,localId:null,email:null};
+    $("account").className="account hidden";
+    $("auth").className="";
+    $("inPass").value="";
+    mode(true);
+    notifyCancelled();
+  }
+  document.addEventListener("click",function(e){
+    var btn=e.target.closest?e.target.closest(".show"):null;
+    if(!btn)return;
+    var input=$(btn.getAttribute("data-target"));
+    if(!input)return;
+    input.type=input.type==="password"?"text":"password";
+    btn.textContent=input.type==="password"?"Show":"Hide";
+  });
+  $("tabIn").onclick=function(){mode(true)};
+  $("tabUp").onclick=function(){mode(false)};
+  $("login").onclick=login;
+  $("signupButton").onclick=signup;
+  $("forgot").onclick=forgot;
+  $("logout").onclick=logout;
+  $("continue").onclick=function(){accountMessage("Authentication complete. You can return to the app.","success");notifyAndroid()};
+
+  Array.prototype.forEach.call(document.querySelectorAll("input"),function(input){
+    input.addEventListener("keydown",function(e){
+      if(e.key!=="Enter")return;
+      if(input.id.indexOf("in")===0)login();else signup();
+    });
+  });
+
+  window.SimpleAccount={
+    getCurrentUser:function(){return state.idToken?{uid:state.localId,email:state.email}:null},
+    getAuthTokensForAndroid:function(){
+      return state.idToken?{idToken:state.idToken,refreshToken:state.refreshToken,uid:state.localId,email:state.email}:null
+    }
+  };
+})();
+</script>
+</body>
+</html>
