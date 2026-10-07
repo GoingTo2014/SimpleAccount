@@ -115,18 +115,30 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   var FIREBASE_API_KEY = "AIzaSyCvzguZnR0UzwuYSTiNEtrzAPvU1eYOZQ8";
   var AUTH_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:";
   var API_KEY = "?key=" + encodeURIComponent(FIREBASE_API_KEY);
-  var state = {idToken:null,refreshToken:null,localId:null,email:null};
+  var state = { idToken:null, refreshToken:null, localId:null, email:null };
 
-  function $(id){return document.getElementById(id)}
-  function message(text,type){
-    var el=$("message"); el.textContent=text||""; el.className="message show "+(type||"error");
+  function $(id){ return document.getElementById(id); }
+
+  function showMessage(text,type){
+    var el=$("message");
+    el.textContent=text||"";
+    el.className="message show "+(type||"error");
   }
-  function clearMessage(){$("message").className="message";$("message").textContent=""}
-  function accountMessage(text,type){
-    var el=$("accountMessage"); el.textContent=text||""; el.className="message show "+(type||"success");
+
+  function clearMessage(){
+    $("message").className="message";
+    $("message").textContent="";
   }
+
+  function showAccountMessage(text,type){
+    var el=$("accountMessage");
+    el.textContent=text||"";
+    el.className="message show "+(type||"success");
+  }
+
   function firebaseMessage(data){
-    var code=data&&data.error&&data.error.message?data.error.message:"";
+    var code="";
+    if(data && data.error && data.error.message){ code=data.error.message; }
     var map={
       EMAIL_EXISTS:"That email is already associated with a Simple Account.",
       EMAIL_NOT_FOUND:"No Simple Account was found with that email.",
@@ -139,120 +151,197 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
       WEAK_PASSWORD:"The password is too weak. Use at least 6 characters.",
       PASSWORD_DOES_NOT_MEET_REQUIREMENTS:"The password does not meet the account password requirements."
     };
-    return map[code]||"Simple Account could not complete that request.";
+    return map[code] || "Simple Account could not complete that request.";
   }
-  async function request(endpoint,body){
-    var response;
+
+  function authRequest(endpoint,body,done){
+    var xhr=new XMLHttpRequest();
+    xhr.open("POST",AUTH_BASE+endpoint+API_KEY,true);
+    xhr.setRequestHeader("Content-Type","application/json");
+    xhr.onreadystatechange=function(){
+      if(xhr.readyState!==4){ return; }
+
+      var data={};
+      try{ data=JSON.parse(xhr.responseText||"{}"); }catch(e){}
+
+      if(xhr.status>=200 && xhr.status<300){
+        done(null,data);
+      }else{
+        done(new Error(firebaseMessage(data)),null);
+      }
+    };
+    xhr.onerror=function(){
+      done(new Error("Unable to connect to Simple Account. Check your internet connection."),null);
+    };
     try{
-      response=await fetch(AUTH_BASE+endpoint+API_KEY,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(body)
-      });
-    }catch(e){throw new Error("Unable to connect to Simple Account. Check your internet connection.")}
-    var data={};
-    try{data=await response.json()}catch(e){}
-    if(!response.ok)throw new Error(firebaseMessage(data));
-    return data;
+      xhr.send(JSON.stringify(body));
+    }catch(e){
+      done(new Error("Unable to connect to Simple Account. Check your internet connection."),null);
+    }
   }
-  function busy(btn,on,text){
-    btn.disabled=on;
-    if(on){btn.dataset.original=btn.textContent;btn.textContent=text}
-    else btn.textContent=btn.dataset.original||btn.textContent;
+
+  function setBusy(button,busy,busyText,normalText){
+    button.disabled=busy;
+    button.textContent=busy ? busyText : normalText;
   }
-  function mode(signin){
+
+  function switchMode(signIn){
     clearMessage();
-    $("tabIn").className="tab"+(signin?" active":"");
-    $("tabUp").className="tab"+(signin?"":" active");
-    $("signin").className=signin?"":"hidden";
-    $("signup").className=signin?"hidden":"";
+    $("tabIn").className="tab"+(signIn?" active":"");
+    $("tabUp").className="tab"+(signIn?"":" active");
+    $("signin").className=signIn?"":"hidden";
+    $("signup").className=signIn?"hidden":"";
   }
-  function notifyAndroid(){
-    if(window.Android&&typeof window.Android.onSimpleAccountAuthenticated==="function"){
-      try{window.Android.onSimpleAccountAuthenticated(state.idToken||"",state.refreshToken||"",state.localId||"",state.email||"")}catch(e){}
+
+  function notifyAndroidAuthenticated(){
+    if(window.Android && typeof window.Android.onSimpleAccountAuthenticated==="function"){
+      try{
+        window.Android.onSimpleAccountAuthenticated(
+          state.idToken||"",
+          state.refreshToken||"",
+          state.localId||"",
+          state.email||""
+        );
+      }catch(e){}
     }
   }
-  function notifyCancelled(){
-    if(window.Android&&typeof window.Android.onSimpleAccountCancelled==="function"){
-      try{window.Android.onSimpleAccountCancelled()}catch(e){}
+
+  function notifyAndroidCancelled(){
+    if(window.Android && typeof window.Android.onSimpleAccountCancelled==="function"){
+      try{ window.Android.onSimpleAccountCancelled(); }catch(e){}
     }
   }
+
   function signedIn(data){
     state.idToken=data.idToken||null;
     state.refreshToken=data.refreshToken||null;
     state.localId=data.localId||null;
     state.email=data.email||null;
+
     $("auth").className="hidden";
     $("account").className="account";
     $("accountEmail").textContent=state.email||"Simple Account";
-    notifyAndroid();
+    notifyAndroidAuthenticated();
   }
-  async function login(){
+
+  function login(){
     clearMessage();
-    var email=$("inEmail").value.trim(), pass=$("inPass").value, btn=$("login");
-    if(!email)return message("Enter your email address.");
-    if(!pass)return message("Enter your password.");
-    busy(btn,true,"Signing In…");
-    try{
-      signedIn(await request("signInWithPassword",{email:email,password:pass,returnSecureToken:true}));
-    }catch(e){message(e.message)}finally{busy(btn,false)}
+    var email=$("inEmail").value.replace(/^\s+|\s+$/g,"");
+    var password=$("inPass").value;
+    var button=$("login");
+
+    if(!email){ showMessage("Enter your email address."); return; }
+    if(!password){ showMessage("Enter your password."); return; }
+
+    setBusy(button,true,"Signing In…","Sign In");
+    authRequest("signInWithPassword",{
+      email:email,
+      password:password,
+      returnSecureToken:true
+    },function(error,data){
+      setBusy(button,false,"Signing In…","Sign In");
+      if(error){ showMessage(error.message); return; }
+      signedIn(data);
+    });
   }
-  async function signup(){
+
+  function signup(){
     clearMessage();
-    var email=$("upEmail").value.trim(), pass=$("upPass").value, pass2=$("upPass2").value, btn=$("signupButton");
-    if(!email)return message("Enter your email address.");
-    if(pass.length<6)return message("Your password must be at least 6 characters.");
-    if(pass!==pass2)return message("The passwords do not match.");
-    busy(btn,true,"Creating Account…");
-    try{
-      signedIn(await request("signUp",{email:email,password:pass,returnSecureToken:true}));
-    }catch(e){message(e.message)}finally{busy(btn,false)}
+    var email=$("upEmail").value.replace(/^\s+|\s+$/g,"");
+    var password=$("upPass").value;
+    var password2=$("upPass2").value;
+    var button=$("signupButton");
+
+    if(!email){ showMessage("Enter your email address."); return; }
+    if(password.length<6){ showMessage("Your password must be at least 6 characters."); return; }
+    if(password!==password2){ showMessage("The passwords do not match."); return; }
+
+    setBusy(button,true,"Creating Account…","Create Account");
+    authRequest("signUp",{
+      email:email,
+      password:password,
+      returnSecureToken:true
+    },function(error,data){
+      setBusy(button,false,"Creating Account…","Create Account");
+      if(error){ showMessage(error.message); return; }
+      signedIn(data);
+    });
   }
-  async function forgot(){
+
+  function forgot(){
     clearMessage();
-    var email=$("inEmail").value.trim(), btn=$("forgot");
-    if(!email)return message("Enter your email first.");
-    busy(btn,true,"Sending…");
-    try{
-      await request("sendOobCode",{requestType:"PASSWORD_RESET",email:email});
-      message("A password reset email has been sent to "+email+".","success");
-    }catch(e){message(e.message)}finally{busy(btn,false)}
+    var email=$("inEmail").value.replace(/^\s+|\s+$/g,"");
+    var button=$("forgot");
+
+    if(!email){ showMessage("Enter your email first."); return; }
+
+    setBusy(button,true,"Sending…","Forgot password?");
+    authRequest("sendOobCode",{
+      requestType:"PASSWORD_RESET",
+      email:email
+    },function(error){
+      setBusy(button,false,"Sending…","Forgot password?");
+      if(error){ showMessage(error.message); return; }
+      showMessage("A password reset email has been sent to "+email+".","success");
+    });
   }
+
   function logout(){
     state={idToken:null,refreshToken:null,localId:null,email:null};
     $("account").className="account hidden";
     $("auth").className="";
     $("inPass").value="";
-    mode(true);
-    notifyCancelled();
+    switchMode(true);
+    notifyAndroidCancelled();
   }
-  document.addEventListener("click",function(e){
-    var btn=e.target.closest?e.target.closest(".show"):null;
-    if(!btn)return;
-    var input=$(btn.getAttribute("data-target"));
-    if(!input)return;
-    input.type=input.type==="password"?"text":"password";
-    btn.textContent=input.type==="password"?"Show":"Hide";
-  });
-  $("tabIn").onclick=function(){mode(true)};
-  $("tabUp").onclick=function(){mode(false)};
+
+  function togglePassword(id,button){
+    var input=$(id);
+    if(!input){ return; }
+    if(input.type==="password"){
+      input.type="text";
+      button.textContent="Hide";
+    }else{
+      input.type="password";
+      button.textContent="Show";
+    }
+  }
+
+  $("tabIn").onclick=function(){ switchMode(true); };
+  $("tabUp").onclick=function(){ switchMode(false); };
   $("login").onclick=login;
   $("signupButton").onclick=signup;
   $("forgot").onclick=forgot;
   $("logout").onclick=logout;
-  $("continue").onclick=function(){accountMessage("Authentication complete. You can return to the app.","success");notifyAndroid()};
 
-  Array.prototype.forEach.call(document.querySelectorAll("input"),function(input){
-    input.addEventListener("keydown",function(e){
-      if(e.key!=="Enter")return;
-      if(input.id.indexOf("in")===0)login();else signup();
-    });
-  });
+  $("continue").onclick=function(){
+    showAccountMessage("Authentication complete. You can return to the app.","success");
+    notifyAndroidAuthenticated();
+  };
+
+  $("showInPass").onclick=function(){ togglePassword("inPass",this); };
+  $("showUpPass").onclick=function(){ togglePassword("upPass",this); };
+  $("showUpPass2").onclick=function(){ togglePassword("upPass2",this); };
+
+  $("inEmail").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
+  $("inPass").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
+  $("upEmail").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
+  $("upPass").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
+  $("upPass2").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
 
   window.SimpleAccount={
-    getCurrentUser:function(){return state.idToken?{uid:state.localId,email:state.email}:null},
+    getCurrentUser:function(){
+      if(!state.idToken){ return null; }
+      return {uid:state.localId,email:state.email};
+    },
     getAuthTokensForAndroid:function(){
-      return state.idToken?{idToken:state.idToken,refreshToken:state.refreshToken,uid:state.localId,email:state.email}:null
+      if(!state.idToken){ return null; }
+      return {
+        idToken:state.idToken,
+        refreshToken:state.refreshToken,
+        uid:state.localId,
+        email:state.email
+      };
     }
   };
 })();
