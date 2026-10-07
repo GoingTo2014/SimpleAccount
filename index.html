@@ -43,8 +43,6 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
         <button id="tabIn" class="tab active" type="button" tabindex="-1">Sign In</button>
         <button id="tabUp" class="tab" type="button" tabindex="-1">Create Account</button>
       </div>
-      <div id="message" class="message" role="alert"></div>
-
       <div id="signin">
         <div class="heading">
           <h2 id="signinHeading">Welcome back</h2>
@@ -61,6 +59,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
             <button class="show" type="button" data-target="inPass" tabindex="-1">Show</button>
           </div>
         </div>
+        <div id="signinMessage" class="message" role="alert"></div>
         <button id="login" class="primary" type="button" tabindex="-1">Sign In</button>
         <button id="forgot" class="link" type="button" tabindex="-1">Forgot password?</button>
       </div>
@@ -88,6 +87,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
             <button class="show" type="button" data-target="upPass2" tabindex="-1">Show</button>
           </div>
         </div>
+        <div id="signupMessage" class="message" role="alert"></div>
         <button id="signupButton" class="primary" type="button" tabindex="-1">Create Account</button>
       </div>
     </div>
@@ -168,15 +168,35 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
   function $(id){ return document.getElementById(id); }
 
-  function showMessage(text,type){
-    var el=$("message");
-    el.textContent=text||"";
+  function showMessage(messageText,type){
+    var el;
+    var signinVisible=$("signin").className.indexOf("hidden")===-1;
+
+    if(signinVisible){
+      el=$("signinMessage");
+    }else{
+      el=$("signupMessage");
+    }
+
+    if(!el){ return; }
+
+    el.textContent=messageText||"";
     el.className="message show "+(type||"error");
   }
 
   function clearMessage(){
-    $("message").className="message";
-    $("message").textContent="";
+    var signinMessage=$("signinMessage");
+    var signupMessage=$("signupMessage");
+
+    if(signinMessage){
+      signinMessage.className="message";
+      signinMessage.textContent="";
+    }
+
+    if(signupMessage){
+      signupMessage.className="message";
+      signupMessage.textContent="";
+    }
   }
 
   function showAccountMessage(text,type){
