@@ -69,28 +69,54 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
           <h2 id="signupHeading">Create your Simple Account</h2>
           <p id="signupDescription">Use the same account across Simple apps and services.</p>
         </div>
-        <div class="field">
-          <label id="upEmailLabel" for="upEmail">Email</label>
-          <input id="upEmail" type="email" autocomplete="email" spellcheck="false">
-        </div>
-        <div class="field">
-          <label id="upPassLabel" for="upPass">Password</label>
-          <div class="password">
-            <input id="upPass" type="password" autocomplete="new-password">
-            <button class="show" type="button" data-target="upPass" tabindex="-1">Show</button>
+
+        <div id="signupStepAge">
+          <div class="heading">
+            <h2 id="birthdayHeading">How old are you?</h2>
+            <p id="birthdayDescription">Enter your birthday to check whether you can create a Simple Account.</p>
+          </div>
+          <div class="field">
+            <label id="birthdayLabel" for="upBirthday">Birthday</label>
+            <input id="upBirthday" type="date" autocomplete="bday">
           </div>
         </div>
-        <div class="field">
-          <label id="upPass2Label" for="upPass2">Confirm password</label>
-          <div class="password">
-            <input id="upPass2" type="password" autocomplete="new-password">
-            <button class="show" type="button" data-target="upPass2" tabindex="-1">Show</button>
+
+        <div id="signupStepName" class="hidden">
+          <div class="heading">
+            <h2 id="firstNameHeading">What's your first name?</h2>
+            <p id="firstNameDescription">This name can be used to personalize your Simple Account.</p>
+          </div>
+          <div class="field">
+            <label id="firstNameLabel" for="upFirstName">First name</label>
+            <input id="upFirstName" type="text" autocomplete="given-name" maxlength="50" spellcheck="false">
           </div>
         </div>
+
+        <div id="signupStepCredentials" class="hidden">
+          <div class="field">
+            <label id="upEmailLabel" for="upEmail">Email</label>
+            <input id="upEmail" type="email" autocomplete="email" spellcheck="false">
+          </div>
+          <div class="field">
+            <label id="upPassLabel" for="upPass">Password</label>
+            <div class="password">
+              <input id="upPass" type="password" autocomplete="new-password">
+              <button class="show" type="button" data-target="upPass" tabindex="-1">Show</button>
+            </div>
+          </div>
+          <div class="field">
+            <label id="upPass2Label" for="upPass2">Confirm password</label>
+            <div class="password">
+              <input id="upPass2" type="password" autocomplete="new-password">
+              <button class="show" type="button" data-target="upPass2" tabindex="-1">Show</button>
+            </div>
+          </div>
+        </div>
+
         <div id="signupMessage" class="message" role="alert"></div>
-        <button id="signupButton" class="primary" type="button" tabindex="-1">Create Account</button>
-      </div>
-    </div>
+        <button id="signupBack" class="link hidden" type="button" tabindex="-1">Back</button>
+        <button id="signupButton" class="primary" type="button" tabindex="-1">Continue</button>
+      </div>    </div>
 
     <div id="account" class="account hidden">
       <div class="heading">
@@ -115,7 +141,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   var FIREBASE_API_KEY = "AIzaSyCvzguZnR0UzwuYSTiNEtrzAPvU1eYOZQ8";
   var AUTH_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:";
   var API_KEY = "?key=" + encodeURIComponent(FIREBASE_API_KEY);
-  var state = { idToken:null, refreshToken:null, localId:null, email:null };
+  var state = { idToken:null, refreshToken:null, localId:null, email:null, firstName:null };
 
   var translations={
     en:{tagline:"One account for the Simple ecosystem.",signIn:"Sign In",createAccount:"Create Account",welcome:"Welcome back",signInDescription:"Sign in to your Simple Account.",email:"Email",password:"Password",show:"Show",hide:"Hide",forgot:"Forgot password?",signingIn:"Signing In…",createBusy:"Creating Account…",confirmPassword:"Confirm password",createHeading:"Create your Simple Account",createDescription:"Use the same account across Simple apps and services.",signedIn:"You're signed in",signedInDescription:"Your Simple Account authentication is complete.",continueText:"Continue",signOut:"Sign Out",footer:"Simple Account · Simple ecosystem"},
