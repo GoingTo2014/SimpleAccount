@@ -286,12 +286,104 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
     button.textContent=busy ? busyText : normalText;
   }
 
+  var signupStep=0;
+
+  function setBirthdayMax(){
+    var today=new Date();
+    var year=today.getFullYear()-13;
+    var month=String(today.getMonth()+1);
+    var day=String(today.getDate());
+
+    if(month.length<2){ month="0"+month; }
+    if(day.length<2){ day="0"+day; }
+
+    $("upBirthday").max=year+"-"+month+"-"+day;
+  }
+
+  function parseBirthday(value){
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value||"")){
+      return null;
+    }
+
+    var parts=value.split("-");
+    var year=parseInt(parts[0],10);
+    var month=parseInt(parts[1],10);
+    var day=parseInt(parts[2],10);
+
+    if(!year || month<1 || month>12 || day<1 || day>31){
+      return null;
+    }
+
+    var date=new Date(Date.UTC(year,month-1,day));
+
+    if(date.getUTCFullYear()!==year ||
+       date.getUTCMonth()!==month-1 ||
+       date.getUTCDate()!==day){
+      return null;
+    }
+
+    return date;
+  }
+
+  function isAtLeast13(value){
+    var birthday=parseBirthday(value);
+
+    if(!birthday){
+      return false;
+    }
+
+    var today=new Date();
+    var cutoff=new Date(Date.UTC(
+      today.getFullYear()-13,
+      today.getMonth(),
+      today.getDate()
+    ));
+
+    return birthday.getTime()<=cutoff.getTime();
+  }
+
+  function setSignupStep(step){
+    signupStep=Math.max(0,Math.min(2,step));
+
+    $("signupStepAge").className=
+      signupStep===0 ? "" : "hidden";
+
+    $("signupStepName").className=
+      signupStep===1 ? "" : "hidden";
+
+    $("signupStepCredentials").className=
+      signupStep===2 ? "" : "hidden";
+
+    $("signupBack").className=
+      signupStep===0 ? "link hidden" : "link";
+
+    $("signupButton").textContent=
+      signupStep===2 ? text.createAccount : text.next;
+
+    clearMessage();
+  }
+
+  function resetSignupFlow(){
+    signupStep=0;
+    $("upBirthday").value="";
+    $("upFirstName").value="";
+    $("upEmail").value="";
+    $("upPass").value="";
+    $("upPass2").value="";
+    setBirthdayMax();
+    setSignupStep(0);
+  }
+
   function switchMode(signIn){
     clearMessage();
     $("tabIn").className="tab"+(signIn?" active":"");
     $("tabUp").className="tab"+(signIn?"":" active");
     $("signin").className=signIn?"":"hidden";
     $("signup").className=signIn?"hidden":"";
+
+    if(!signIn){
+      resetSignupFlow();
+    }
   }
 
   function notifyAndroidAuthenticated(){
@@ -347,14 +439,63 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
   function signup(){
     clearMessage();
-    var email=$("upEmail").value.replace(/^\s+|\s+$/g,"");
+
+    if(signupStep===0){
+      var birthday=$("upBirthday").value;
+
+      if(!birthday){
+        showMessage(text.birthdayRequired);
+        return;
+      }
+
+      if(!parseBirthday(birthday)){
+        showMessage(text.invalidBirthday);
+        return;
+      }
+
+      if(!isAtLeast13(birthday)){
+        showMessage(text.ageRestricted);
+        return;
+      }
+
+      setSignupStep(1);
+      $("upFirstName").focus();
+      return;
+    }
+
+    if(signupStep===1){
+      var firstName=$("upFirstName").value.replace(/^\\s+|\\s+$/g,"");
+
+      if(!firstName){
+        showMessage(text.firstNameRequired);
+        return;
+      }
+
+      state.firstName=firstName;
+      setSignupStep(2);
+      $("upEmail").focus();
+      return;
+    }
+
+    var email=$("upEmail").value.replace(/^\\s+|\\s+$/g,"");
     var password=$("upPass").value;
     var password2=$("upPass2").value;
     var button=$("signupButton");
 
-    if(!email){ showMessage("Enter your email address."); return; }
-    if(password.length<6){ showMessage("Your password must be at least 6 characters."); return; }
-    if(password!==password2){ showMessage("The passwords do not match."); return; }
+    if(!email){
+      showMessage("Enter your email address.");
+      return;
+    }
+
+    if(password.length<6){
+      showMessage("Your password must be at least 6 characters.");
+      return;
+    }
+
+    if(password!==password2){
+      showMessage("The passwords do not match.");
+      return;
+    }
 
     setBusy(button,true,text.createBusy,text.createAccount);
     authRequest("signUp",{
@@ -387,7 +528,7 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   }
 
   function logout(){
-    state={idToken:null,refreshToken:null,localId:null,email:null};
+    state={idToken:null,refreshToken:null,localId:null,email:null,firstName:null};
     $("account").className="account hidden";
     $("auth").className="";
     $("inPass").value="";
@@ -436,6 +577,9 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
   $("tabUp").onclick=function(){ switchMode(false); };
   $("login").onclick=login;
   $("signupButton").onclick=signup;
+  $("signupBack").onclick=function(){
+    if(signupStep>0){ setSignupStep(signupStep-1); }
+  };
   $("forgot").onclick=forgot;
   $("logout").onclick=logout;
 
@@ -453,6 +597,8 @@ input:focus{border-color:#1a73e8;box-shadow:0 0 0 2px rgba(26,115,232,.12)}
 
   $("inEmail").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
   $("inPass").onkeydown=function(e){ if(e.keyCode===13){ login(); } };
+  $("upBirthday").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
+  $("upFirstName").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
   $("upEmail").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
   $("upPass").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
   $("upPass2").onkeydown=function(e){ if(e.keyCode===13){ signup(); } };
